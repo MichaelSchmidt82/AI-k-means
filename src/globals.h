@@ -1,6 +1,10 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+/* Constants */
+const double NORM_MIN = 0.5;
+const double NORM_MAX = 1.5;
+
 /* Includes */
 #include <cassert>
 #include <cmath>
@@ -25,5 +29,9 @@ typedef vector<double> Dataset;
 typedef Dataset* DatasetPtr;
 typedef vector<Dataset> DataMatrix;
 typedef vector<size_t> Affiliation;
+
+typedef double (*DistanceCallback)(const Dataset & data,
+    const Dataset & centroid,
+    const size_t N_VALS);
 
 #endif // !GLOBALS_H

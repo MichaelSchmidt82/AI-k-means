@@ -81,7 +81,7 @@ void cluster (const DataMatrix & data,
         for (size_t k = 0; k < K; k++) {
 
             const Dataset& c = centroids[k];
-            distances[d][k] = arithmetic_mean_dist(data[d], c, N_VALS);
+            distances[d][k] = harmonic_mean(data[d], c, euclidean_dist, N_VALS);
 
             if (distances[d][k] < min) {
                 min = distances[d][k];
@@ -270,26 +270,3 @@ DataMatrix init (char* train,
 	train_file.close();
     return train_data;
 }
-
-/* WIP */
-// void geometric_mean (DataMatrix * centroid, const size_t K, const size_t N_VALS) {
-//     DataMatrix new_centroids(K, Dataset(N_VALS, 1));
-//
-//     /* Recenter each centroid k in the cluster */
-//     for (size_t k = 0; k < K; k++) {
-//         centroid = &new_centroids[k];
-//
-//         /* Sum each datum d that belong to cluster k */
-//         for (const size_t aff : affiliations) {
-//             if (aff == k) {
-//                 for (size_t d = 0; d < N_VALS; d++)
-//                     (*centroid)[d] *= data[idx][d];
-//                 n++;
-//             }
-//             idx++;
-//         }
-//
-//         /* Calculate new centroids by taking average of n data points */
-//         for (double & d : *centroid)
-//             d = pow(d, 1.0 / n);
-// }
