@@ -2,7 +2,6 @@
 cd "${0%/*}"
 
 cluster_max=95
-num_of_attributes=9
 data_file="datasets/cancer-data.txt"
 out="cancer-results.txt"
 
