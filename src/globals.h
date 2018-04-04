@@ -3,7 +3,7 @@
 
 /* Constants */
 const double NORM_MIN = 0.5;
-const double NORM_MAX = 1.5;
+const double NORM_MAX = 2.0;
 
 /* Includes */
 #include <cassert>
