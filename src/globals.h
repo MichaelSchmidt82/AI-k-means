@@ -14,6 +14,7 @@ const double NORM_MAX = 2.0;
 #include <string>
 #include <sstream>
 #include <vector>
+#include <string.h>
 
 /* Using statements */
 using std::cout;

@@ -11,8 +11,15 @@ Description:    Unsupervised learning by K-means clustering.
 #include "functions.h"
 
 /* Prototypes */
+void parse_cla(int argc,
+    char * argv[],
+    bool & norm,
+    MeanCallback & mean_f,
+    DistCallback & dist_f);
+
 DataMatrix init(char * train_name,
     char * test_name,
+    bool norm,
     DataMatrix & test_out,
     DataMatrix & centroids,
     DataMatrix & distances,
@@ -22,7 +29,6 @@ DataMatrix init(char * train_name,
 bool recenter (const DataMatrix & data,
     DataMatrix & centroid,
     const Affiliation & affiliations,
-
     const size_t K,
     const size_t N_VALS);
 
@@ -48,29 +54,28 @@ void help();
 
 /* int main() */
 int main (int argc, char * argv[]) {
-    assert(argc >= 6 && "5 CLA's must be provided.");
-    srand(atoi(argv[1]));
 
-    /* Constants */
+    /* Variables */
+    MeanCallback mean_f = arithmetic_mean;
+    DistCallback dist_f = euclidean_dist;
+    bool norm = false;
+
+    Affiliation affiliations;
+    DataMatrix centroids;
+    DataMatrix distances;
+    DataMatrix test;
+    DataMatrix data;
+
+
+    /* Parse command line arguments */
+    parse_cla(argc, argv, norm, mean_f, dist_f);
     const size_t K = atoi(argv[2]);
     const size_t N_VALS = atoi(argv[3]);
 
-    /* Variables */
-    DataMatrix centroids(K);
-    DataMatrix distances;
-    DataMatrix test;
-    DataMatrix data = init(argv[4], argv[5], test, centroids, distances, K, N_VALS);
-    Affiliation affiliations(data.size());
-
-    bool normailize;
-
-    MeanCallback mean_f = arithmetic_mean;
-    DistCallback dist_f = euclidean_dist;
-
-    for (size_t i = 0; i < argc; i++) {
-        if (argv[i] == "--help")
-                help();
-        }
+    /* Parse data */
+    centroids = DataMatrix(K);
+    data = init(argv[4], argv[5], norm, test, centroids, distances, K, N_VALS);
+    affiliations = Affiliation(data.size());
 
     /* Algorithm */
     do {
@@ -78,7 +83,7 @@ int main (int argc, char * argv[]) {
     } while(!recenter(data, centroids, affiliations, K, N_VALS));
 
     /* Validate */
-    class_check (data, test, affiliations, centroids, mean_f, dist_f, K, N_VALS);
+    class_check(data, test, affiliations, centroids, mean_f, dist_f, K, N_VALS);
     return 0;
 }
 
@@ -215,6 +220,7 @@ bool recenter (const DataMatrix & data,
 
 DataMatrix init (char* train,
     char* test,
+    bool norm,
     DataMatrix & test_data,
     DataMatrix & centroids,
     DataMatrix & distances,
@@ -266,8 +272,10 @@ DataMatrix init (char* train,
     }
 
     /* Normailize values. Training then testing with training parameters */
-    normailize(train_data, N_VALS, true);
-    normailize(test_data, N_VALS, false);
+    if (norm) {
+        normailize(train_data, N_VALS, true);
+        normailize(test_data, N_VALS, false);
+    }
 
     /* Create vector of sequential size_t that will act as indices */
     for (size_t & i : staring_pts) {
@@ -295,6 +303,47 @@ DataMatrix init (char* train,
     return train_data;
 }
 
+void parse_cla(int argc,
+    char * argv[],
+    bool & norm,
+    MeanCallback & mean_f,
+    DistCallback & dist_f) {
+
+    assert(argc >= 6 && "Atleast 5 CLA's must be provided.");
+
+    for (size_t i = 6; i < argc; i++) {
+        bool valid = false;
+        if (!strcmp(argv[i], "--help"))
+            help();
+
+        if (!strcmp(argv[i], "--normalize")) {
+            norm = true;
+            cout << "normal ass ";
+        }
+
+        if (!strcmp(argv[i], "--euclidean"))
+            dist_f = euclidean_dist;
+
+        if (!strcmp(argv[i], "--manhattan"))
+            dist_f = manhattan_dist;
+
+        if (!strcmp(argv[i], "--arithmetic"))
+            mean_f = arithmetic_mean;
+
+        if (!strcmp(argv[i], "--geometric")) {
+            mean_f = geometric_mean;
+        }
+
+        if (!strcmp(argv[i], "--harmonic")) {
+            mean_f = harmonic_mean;
+            cout << "ass";
+
+        }
+    }
+}
+
 void help() {
-    cout << "Usage: kmeans [SEED] [CLUSTERS] [FEATURES] [TRAIN] [TEST]" << endl;
+    cout << "Usage: kmeans [SEED] [CLUSTERS] [FEATURES] [TRAIN_FILE] [TEST_FILE]" << endl;
+    cout << endl;
+    cout << "--normailize\t\tnormalize data between 0.5 and 2.0" << endl;
 }
