@@ -1,4 +1,6 @@
 #!/bin/bash
+echo "hello"
+
 (cd "${0%/*}" && cd ../)
 
 N=$1
@@ -14,7 +16,7 @@ head -n -${N} tmp/temp.$$.txt > tmp/temp.$$.train.txt
 tail -n ${N} tmp/temp.$$.txt > tmp/temp.$$.test.txt
 
 ## Run command with split data appended
-./$@ tmp/temp.$$.train.txt tmp/temp.$$.test.txt
+./$@ tmp/temp.$$.train.txt tmp/temp.$$.test.txt #--help # this works
 
 ## Remove temporary files
 rm tmp/temp.$$.*

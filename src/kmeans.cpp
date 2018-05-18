@@ -239,8 +239,18 @@ DataMatrix init (char* train,
     size_t train_data_size;
     size_t index = 0;
 
-    assert(test_file.is_open() && train_file.is_open() &&
-        "The training and/or testing files failed to open");
+    if (!(test_file.is_open() && train_file.is_open())) {
+        cerr << "The training and/or testing files failed to open!!!" << endl;
+        cerr << "train file:\t" << train << endl;
+        cerr << "test file: \t" << test << endl;
+        assert(test_file.is_open() && train_file.is_open());
+    }
+
+
+    //assert(test_file.is_open() && train_file.is_open() &&
+    //    "The training and/or testing files failed to open");
+
+    //IDEA: put these 2 into a function because this one is kinda long.
 
     /* Parse training data from file */
     getline(train_file, line);
@@ -338,7 +348,7 @@ void parse_cla(int argc,
 }
 
 void help() {
-    cout << "Usage: kmeans [SEED] [CLUSTERS] [FEATURES] [TRAIN_FILE] [TEST_FILE]" << endl;
-    cout << endl;
-    cout << "--normailize\t\tnormalize data between 0.5 and 2.0" << endl;
+    cerr << "Usage: kmeans [SEED] [CLUSTERS] [FEATURES] [TRAIN_FILE] [TEST_FILE]" << endl;
+    cerr << endl;
+    cerr << "--normailize\t\tnormalize data between 0.5 and 2.0" << endl;
 }

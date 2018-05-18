@@ -18,6 +18,7 @@ const double NORM_MAX = 2.0;
 
 /* Using statements */
 using std::cout;
+using std::cerr;
 using std::endl;
 using std::ifstream;
 using std::numeric_limits;

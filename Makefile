@@ -9,4 +9,5 @@ kmeans: tmp/kmeans.o
 clean:
 	rm kmeans
 	rm tmp/*
+	rm *-results.txt
 	touch tmp/placeholder.tmp
