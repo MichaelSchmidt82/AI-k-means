@@ -316,10 +316,8 @@ void parse_cla(int argc,
         if (!strcmp(argv[i], "--help"))
             help();
 
-        if (!strcmp(argv[i], "--normalize")) {
+        if (!strcmp(argv[i], "--normalize"))
             norm = true;
-            cout << "normal ass ";
-        }
 
         if (!strcmp(argv[i], "--euclidean"))
             dist_f = euclidean_dist;
@@ -330,15 +328,12 @@ void parse_cla(int argc,
         if (!strcmp(argv[i], "--arithmetic"))
             mean_f = arithmetic_mean;
 
-        if (!strcmp(argv[i], "--geometric")) {
+        if (!strcmp(argv[i], "--geometric"))
             mean_f = geometric_mean;
-        }
 
-        if (!strcmp(argv[i], "--harmonic")) {
+
+        if (!strcmp(argv[i], "--harmonic"))
             mean_f = harmonic_mean;
-            cout << "ass";
-
-        }
     }
 }
 

@@ -106,7 +106,7 @@ double harmonic_mean (const Dataset & data,
 
     double sum = 0;
     for (size_t f = 0; f < N_VALS; f++)
-        sum += reciprocal(dist_f(data, centroid, N_VALS) );
+        sum += reciprocal(dist_f(data, centroid, N_VALS));
 
     return N_VALS / sum;
 }
