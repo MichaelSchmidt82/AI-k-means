@@ -30,8 +30,13 @@ typedef Dataset* DatasetPtr;
 typedef vector<Dataset> DataMatrix;
 typedef vector<size_t> Affiliation;
 
-typedef double (*DistanceCallback)(const Dataset & data,
+typedef double (*DistCallback)(const Dataset & data,
     const Dataset & centroid,
+    const size_t N_VALS);
+
+typedef double (*MeanCallback)(const Dataset & data,
+    const Dataset & centroid,
+    DistCallback dist_f,
     const size_t N_VALS);
 
 #endif // !GLOBALS_H

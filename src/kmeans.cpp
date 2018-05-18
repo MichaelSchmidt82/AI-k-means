@@ -19,10 +19,10 @@ DataMatrix init(char * train_name,
     const size_t K,
     const size_t N_VALS);
 
-bool recenter(
-    const DataMatrix & data,
+bool recenter (const DataMatrix & data,
     DataMatrix & centroid,
     const Affiliation & affiliations,
+
     const size_t K,
     const size_t N_VALS);
 
@@ -30,6 +30,8 @@ void cluster (const DataMatrix & data,
     const DataMatrix & centroids,
     Affiliation & affiliations,
     DataMatrix & distances,
+    MeanCallback mean_f,
+    DistCallback dist_f,
     const size_t K,
     const size_t N_VALS);
 
@@ -37,12 +39,16 @@ void class_check (const DataMatrix & train_data,
     const DataMatrix test_data,
     const Affiliation & train_affils,
     const DataMatrix & centroids,
+    MeanCallback mean_f,
+    DistCallback dist_f,
     const size_t K,
     const size_t N_VALS);
 
+void help();
+
 /* int main() */
 int main (int argc, char * argv[]) {
-    assert(argc == 6 && "5 CLA's must be provided.");
+    assert(argc >= 6 && "5 CLA's must be provided.");
     srand(atoi(argv[1]));
 
     /* Constants */
@@ -56,21 +62,34 @@ int main (int argc, char * argv[]) {
     DataMatrix data = init(argv[4], argv[5], test, centroids, distances, K, N_VALS);
     Affiliation affiliations(data.size());
 
+    bool normailize;
+
+    MeanCallback mean_f = arithmetic_mean;
+    DistCallback dist_f = euclidean_dist;
+
+    for (size_t i = 0; i < argc; i++) {
+        if (argv[i] == "--help")
+                help();
+        }
+
     /* Algorithm */
     do {
-         cluster(data, centroids, affiliations, distances, K, N_VALS);
+         cluster(data, centroids, affiliations, distances, mean_f, dist_f, K, N_VALS);
     } while(!recenter(data, centroids, affiliations, K, N_VALS));
 
     /* Validate */
-    class_check (data, test, affiliations, centroids, K, N_VALS);
+    class_check (data, test, affiliations, centroids, mean_f, dist_f, K, N_VALS);
     return 0;
 }
+
 
 /* Functions */
 void cluster (const DataMatrix & data,
     const DataMatrix & centroids,
     Affiliation & affiliations,
     DataMatrix & distances,
+    MeanCallback mean_f,
+    DistCallback dist_f,
     const size_t K,
     const size_t N_VALS) {
 
@@ -81,7 +100,7 @@ void cluster (const DataMatrix & data,
         for (size_t k = 0; k < K; k++) {
 
             const Dataset& c = centroids[k];
-            distances[d][k] = harmonic_mean(data[d], c, euclidean_dist, N_VALS);
+            distances[d][k] = mean_f(data[d], c, dist_f, N_VALS);
 
             if (distances[d][k] < min) {
                 min = distances[d][k];
@@ -96,6 +115,8 @@ void class_check (const DataMatrix & train_data,
     const DataMatrix test_data,
     const Affiliation & train_affils,
     const DataMatrix & centroids,
+    MeanCallback mean_f,
+    DistCallback dist_f,
     const size_t K,
     const size_t N_VALS) {
 
@@ -135,7 +156,7 @@ void class_check (const DataMatrix & train_data,
         max = 0;
     }
 
-    cluster(test_data, centroids, test_affils, distances, K, N_VALS);
+    cluster(test_data, centroids, test_affils, distances, mean_f, dist_f, K, N_VALS);
 
     /* Count how many are correct */
     for (size_t t = 0; t < test_data.size(); t++)
@@ -160,6 +181,8 @@ bool recenter (const DataMatrix & data,
     /* Recenter each centroid k in the cluster */
     for (size_t k = 0; k < K; k++) {
         centroid = &new_centroids[k];
+
+        //IDEA: this is an arithmetic mean...
 
         /* Sum each datum d that belong to cluster k */
         for (const size_t aff : affiliations) {
@@ -270,4 +293,8 @@ DataMatrix init (char* train,
     train_file.close();
 
     return train_data;
+}
+
+void help() {
+    cout << "Usage: kmeans [SEED] [CLUSTERS] [FEATURES] [TRAIN] [TEST]" << endl;
 }
