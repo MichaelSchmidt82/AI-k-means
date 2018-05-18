@@ -1,6 +1,10 @@
 # AI-k-means
 k-means, an unsupervised machine learning and clustering algorithm.
 
+#### Usage
+```make```, then ```./cancer``` or ```./iris```
+
+
 #### Means implemented:
 1. Arithmetic
 2. Geometric

@@ -4,7 +4,8 @@
 
 
 */
-
+#ifndef FUNCTIONS_H
+#define FUNCTIONS_H
 #include "globals.h"
 
 /* Prototypes */
@@ -39,8 +40,6 @@ double reciprocal (double x);
 
 template<typename T>
 inline void quick_swap(T & x, T & y);
-
-
 
 /* Distance calculators */
 double euclidean_dist(const Dataset & data,
@@ -168,3 +167,5 @@ inline void quick_swap(T & x, T & y) {
         x ^= y;
     }
 }
+
+#endif

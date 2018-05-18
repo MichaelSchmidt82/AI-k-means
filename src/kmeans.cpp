@@ -266,7 +266,8 @@ DataMatrix init (char* train,
         ds = Dataset(K, numeric_limits<double>::max());
 
     /* Tidy up */
-	test_file.close();
-	train_file.close();
+    test_file.close();
+    train_file.close();
+
     return train_data;
 }
