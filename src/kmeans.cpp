@@ -208,6 +208,8 @@ bool recenter (const DataMatrix & data,
     }
 
     /* Check for convergence. */
+    //IDEA: CORDS instead, use foreach
+
     for (size_t k = 0; k < K; k++)
         for (size_t d = 0; d < centroids[k].size(); d++)
             if (abs(centroids[k][d] - new_centroids[k][d]) > numeric_limits<double>::min()) {
