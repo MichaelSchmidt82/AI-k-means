@@ -5,11 +5,9 @@ cluster_max=95
 data_file="datasets/cancer-data.txt"
 out="cancer-results.txt"
 
-echo $@
-
 echo "Clustering has started."
 for ((cluster=1; cluster<=$cluster_max; cluster++)); do
-	./scripts/cancer-pass.sh "$cluster"
+	./scripts/cancer-pass.sh "$cluster" $@
 	echo "finished clustering ($cluster)"
 done
 
