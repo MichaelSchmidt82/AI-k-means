@@ -11,22 +11,16 @@ Description:    Unsupervised learning by K-means clustering.
 #include "functions.h"
 
 /* Prototypes */
-void parse_cla(int argc,
-    char * argv[],
-    bool & norm,
-    MeanCallback & mean_f,
-    DistCallback & dist_f);
-
 DataMatrix init(char * train_name,
     char * test_name,
-    bool norm,
     DataMatrix & test_out,
     DataMatrix & centroids,
     DataMatrix & distances,
     const size_t K,
     const size_t N_VALS);
 
-bool recenter (const DataMatrix & data,
+bool recenter(
+    const DataMatrix & data,
     DataMatrix & centroid,
     const Affiliation & affiliations,
     const size_t K,
@@ -36,8 +30,6 @@ void cluster (const DataMatrix & data,
     const DataMatrix & centroids,
     Affiliation & affiliations,
     DataMatrix & distances,
-    MeanCallback mean_f,
-    DistCallback dist_f,
     const size_t K,
     const size_t N_VALS);
 
@@ -45,67 +37,40 @@ void class_check (const DataMatrix & train_data,
     const DataMatrix test_data,
     const Affiliation & train_affils,
     const DataMatrix & centroids,
-    MeanCallback mean_f,
-    DistCallback dist_f,
     const size_t K,
     const size_t N_VALS);
 
-void help();
-
 /* int main() */
 int main (int argc, char * argv[]) {
+    assert(argc == 6 && "5 CLA's must be provided.");
+    srand(atoi(argv[1]));
 
-    /* Variables */
-    MeanCallback mean_f = arithmetic_mean;
-    DistCallback dist_f = euclidean_dist;
-    bool norm = false;
-
-    Affiliation affiliations;
-    DataMatrix centroids;
-    DataMatrix distances;
-    DataMatrix test;
-    DataMatrix data;
-
-    /* Parse command line arguments */
-    parse_cla(argc, argv, norm, mean_f, dist_f);
+    /* Constants */
     const size_t K = atoi(argv[2]);
     const size_t N_VALS = atoi(argv[3]);
 
-    /* Parse data */
-    centroids = DataMatrix(K);
-    data = init(argv[4], argv[5], norm, test, centroids, distances, K, N_VALS);
-    affiliations = Affiliation(data.size());
-
-    cluster(data, centroids, affiliations, distances, mean_f, dist_f, K, N_VALS);
-
-    cout << "k15: ";
-    for (size_t v = 0; v < N_VALS; v++)
-        cout << centroids[K-1][v] << '\t';
-    cout << endl;
-
-    for (int i = 0; i < 3; i++) {
-        recenter(data, centroids, affiliations, K, N_VALS);
-        cluster(data, centroids, affiliations, distances, mean_f, dist_f, K, N_VALS);
-    }
+    /* Variables */
+    DataMatrix centroids(K);
+    DataMatrix distances;
+    DataMatrix test;
+    DataMatrix data = init(argv[4], argv[5], test, centroids, distances, K, N_VALS);
+    Affiliation affiliations(data.size());
 
     /* Algorithm */
-    // do {
-    //      cluster(data, centroids, affiliations, distances, mean_f, dist_f, K, N_VALS);
-    // } while(!recenter(data, centroids, affiliations, K, N_VALS));
+    do {
+         cluster(data, centroids, affiliations, distances, K, N_VALS);
+    } while(!recenter(data, centroids, affiliations, K, N_VALS));
 
     /* Validate */
-    class_check(data, test, affiliations, centroids, mean_f, dist_f, K, N_VALS);
+    class_check (data, test, affiliations, centroids, K, N_VALS);
     return 0;
 }
-
 
 /* Functions */
 void cluster (const DataMatrix & data,
     const DataMatrix & centroids,
     Affiliation & affiliations,
     DataMatrix & distances,
-    MeanCallback mean_f,
-    DistCallback dist_f,
     const size_t K,
     const size_t N_VALS) {
 
@@ -116,7 +81,7 @@ void cluster (const DataMatrix & data,
         for (size_t k = 0; k < K; k++) {
 
             const Dataset& c = centroids[k];
-            distances[d][k] = mean_f(data[d], c, dist_f, N_VALS);
+            distances[d][k] = harmonic_mean(data[d], c, euclidean_dist, N_VALS);
 
             if (distances[d][k] < min) {
                 min = distances[d][k];
@@ -131,8 +96,6 @@ void class_check (const DataMatrix & train_data,
     const DataMatrix test_data,
     const Affiliation & train_affils,
     const DataMatrix & centroids,
-    MeanCallback mean_f,
-    DistCallback dist_f,
     const size_t K,
     const size_t N_VALS) {
 
@@ -172,7 +135,7 @@ void class_check (const DataMatrix & train_data,
         max = 0;
     }
 
-    cluster(test_data, centroids, test_affils, distances, mean_f, dist_f, K, N_VALS);
+    cluster(test_data, centroids, test_affils, distances, K, N_VALS);
 
     /* Count how many are correct */
     for (size_t t = 0; t < test_data.size(); t++)
@@ -194,15 +157,9 @@ bool recenter (const DataMatrix & data,
     DatasetPtr centroid = nullptr;
     DataMatrix new_centroids(K, Dataset(N_VALS));
 
-    // for (size_t aff : affiliations)
-    //     cout << aff << ' ';
-    // cout << endl;
-
     /* Recenter each centroid k in the cluster */
     for (size_t k = 0; k < K; k++) {
         centroid = &new_centroids[k];
-
-        //IDEA: this is an arithmetic mean...
 
         /* Sum each datum d that belong to cluster k */
         for (const size_t aff : affiliations) {
@@ -217,40 +174,24 @@ bool recenter (const DataMatrix & data,
         /* Calculate new centroids by taking average of n data points */
         for (double & d : *centroid)
             d /= n;
+
         idx = 0;
-
-        cout << " k: " << k << " n: " << n << endl;
-
         n = 0;
     }
 
     /* Check for convergence. */
-    //IDEA: CORDS instead, use foreach
-
     for (size_t k = 0; k < K; k++)
         for (size_t d = 0; d < centroids[k].size(); d++)
             if (abs(centroids[k][d] - new_centroids[k][d]) > numeric_limits<double>::min()) {
                 centroids = move(new_centroids);
-
-
-                // ASSES
-                cout << "k15: ";
-                for(int c = 0; c < centroids[k].size(); c++)
-                    cerr << centroids[K-1][c] << ' ';
-                cerr << endl;
-
-
                 return false;
             }
-
-
 
     return true;
 }
 
 DataMatrix init (char* train,
     char* test,
-    bool norm,
     DataMatrix & test_data,
     DataMatrix & centroids,
     DataMatrix & distances,
@@ -269,18 +210,8 @@ DataMatrix init (char* train,
     size_t train_data_size;
     size_t index = 0;
 
-    if (!(test_file.is_open() && train_file.is_open())) {
-        cerr << "The training and/or testing files failed to open!!!" << endl;
-        cerr << "train file:\t" << train << endl;
-        cerr << "test file: \t" << test << endl;
-        assert(test_file.is_open() && train_file.is_open());
-    }
-
-
-    //assert(test_file.is_open() && train_file.is_open() &&
-    //    "The training and/or testing files failed to open");
-
-    //IDEA: put these 2 into a function because this one is kinda long.
+    assert(test_file.is_open() && train_file.is_open() &&
+        "The training and/or testing files failed to open");
 
     /* Parse training data from file */
     getline(train_file, line);
@@ -312,10 +243,8 @@ DataMatrix init (char* train,
     }
 
     /* Normailize values. Training then testing with training parameters */
-    if (norm) {
-        normailize(train_data, N_VALS, true);
-        normailize(test_data, N_VALS, false);
-    }
+    normailize(train_data, N_VALS, true);
+    normailize(test_data, N_VALS, false);
 
     /* Create vector of sequential size_t that will act as indices */
     for (size_t & i : staring_pts) {
@@ -341,44 +270,4 @@ DataMatrix init (char* train,
     train_file.close();
 
     return train_data;
-}
-
-void parse_cla(int argc,
-    char * argv[],
-    bool & norm,
-    MeanCallback & mean_f,
-    DistCallback & dist_f) {
-
-    assert(argc >= 6 && "Atleast 5 CLA's must be provided.");
-
-    for (size_t i = 6; i < argc; i++) {
-        bool valid = false;
-        if (!strcmp(argv[i], "--help"))
-            help();
-
-        if (!strcmp(argv[i], "--normalize"))
-            norm = true;
-
-        if (!strcmp(argv[i], "--euclidean"))
-            dist_f = euclidean_dist;
-
-        if (!strcmp(argv[i], "--manhattan"))
-            dist_f = manhattan_dist;
-
-        if (!strcmp(argv[i], "--arithmetic"))
-            mean_f = arithmetic_mean;
-
-        if (!strcmp(argv[i], "--geometric"))
-            mean_f = geometric_mean;
-
-
-        if (!strcmp(argv[i], "--harmonic"))
-            mean_f = harmonic_mean;
-    }
-}
-
-void help() {
-    cerr << "Usage: kmeans [SEED] [CLUSTERS] [FEATURES] [TRAIN_FILE] [TEST_FILE]" << endl;
-    cerr << endl;
-    cerr << "--normailize\t\tnormalize data between 0.5 and 2.0" << endl;
 }
