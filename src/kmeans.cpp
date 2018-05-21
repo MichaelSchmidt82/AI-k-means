@@ -40,9 +40,10 @@ void class_check (const DataMatrix & train_data,
     const size_t K,
     const size_t N_VALS);
 
-/* int main() */
+
+
 int main (int argc, char * argv[]) {
-    assert(argc == 6 && "5 CLA's must be provided.");
+    assert(argc >= 6 && "5 CLA's must be provided.");
     srand(atoi(argv[1]));
 
     /* Constants */
@@ -56,6 +57,12 @@ int main (int argc, char * argv[]) {
     DataMatrix data = init(argv[4], argv[5], test, centroids, distances, K, N_VALS);
     Affiliation affiliations(data.size());
 
+    // cluster(data, centroids, affiliations, distances, K, N_VALS);
+    // for (int i = 0; i < 3; i++) {
+    //     recenter(data, centroids, affiliations, K, N_VALS);
+    //     cluster(data, centroids, affiliations, distances, K, N_VALS);
+    // }
+
     /* Algorithm */
     do {
          cluster(data, centroids, affiliations, distances, K, N_VALS);
@@ -65,6 +72,7 @@ int main (int argc, char * argv[]) {
     class_check (data, test, affiliations, centroids, K, N_VALS);
     return 0;
 }
+
 
 /* Functions */
 void cluster (const DataMatrix & data,
@@ -180,12 +188,21 @@ bool recenter (const DataMatrix & data,
     }
 
     /* Check for convergence. */
-    for (size_t k = 0; k < K; k++)
-        for (size_t d = 0; d < centroids[k].size(); d++)
+    for (size_t k = 0; k < K; k++) {
+        // cout << "old: ";
+        // for (size_t d = 0; d < N_VALS; d++)
+        //     cout << centroids[k][d] << "   ";
+        // cout << endl;
+        // cout << "new: ";
+        // for (size_t d = 0; d < N_VALS; d++)
+        //     cout << new_centroids[k][d] << "   ";
+        // cout << endl;
+        for (size_t d = 0; d < N_VALS; d++)
             if (abs(centroids[k][d] - new_centroids[k][d]) > numeric_limits<double>::min()) {
                 centroids = move(new_centroids);
                 return false;
             }
+        }
 
     return true;
 }
