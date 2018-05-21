@@ -16,6 +16,8 @@ const double NORM_MAX = 2.0;
 #include <vector>
 #include <string.h>
 
+#include <iomanip>
+
 /* Using statements */
 using std::cout;
 using std::cerr;
@@ -25,6 +27,9 @@ using std::numeric_limits;
 using std::string;
 using std::stringstream;
 using std::vector;
+
+using std::setw;
+using std::setprecision;
 
 /* Typedefs */
 typedef vector<double> Dataset;

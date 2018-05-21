@@ -66,7 +66,6 @@ int main (int argc, char * argv[]) {
     DataMatrix test;
     DataMatrix data;
 
-
     /* Parse command line arguments */
     parse_cla(argc, argv, norm, mean_f, dist_f);
     const size_t K = atoi(argv[2]);
@@ -77,10 +76,22 @@ int main (int argc, char * argv[]) {
     data = init(argv[4], argv[5], norm, test, centroids, distances, K, N_VALS);
     affiliations = Affiliation(data.size());
 
+    cluster(data, centroids, affiliations, distances, mean_f, dist_f, K, N_VALS);
+
+    cout << "k15: ";
+    for (size_t v = 0; v < N_VALS; v++)
+        cout << centroids[K-1][v] << '\t';
+    cout << endl;
+
+    for (int i = 0; i < 3; i++) {
+        recenter(data, centroids, affiliations, K, N_VALS);
+        cluster(data, centroids, affiliations, distances, mean_f, dist_f, K, N_VALS);
+    }
+
     /* Algorithm */
-    do {
-         cluster(data, centroids, affiliations, distances, mean_f, dist_f, K, N_VALS);
-    } while(!recenter(data, centroids, affiliations, K, N_VALS));
+    // do {
+    //      cluster(data, centroids, affiliations, distances, mean_f, dist_f, K, N_VALS);
+    // } while(!recenter(data, centroids, affiliations, K, N_VALS));
 
     /* Validate */
     class_check(data, test, affiliations, centroids, mean_f, dist_f, K, N_VALS);
@@ -183,6 +194,10 @@ bool recenter (const DataMatrix & data,
     DatasetPtr centroid = nullptr;
     DataMatrix new_centroids(K, Dataset(N_VALS));
 
+    // for (size_t aff : affiliations)
+    //     cout << aff << ' ';
+    // cout << endl;
+
     /* Recenter each centroid k in the cluster */
     for (size_t k = 0; k < K; k++) {
         centroid = &new_centroids[k];
@@ -202,8 +217,10 @@ bool recenter (const DataMatrix & data,
         /* Calculate new centroids by taking average of n data points */
         for (double & d : *centroid)
             d /= n;
-
         idx = 0;
+
+        cout << " k: " << k << " n: " << n << endl;
+
         n = 0;
     }
 
@@ -214,8 +231,19 @@ bool recenter (const DataMatrix & data,
         for (size_t d = 0; d < centroids[k].size(); d++)
             if (abs(centroids[k][d] - new_centroids[k][d]) > numeric_limits<double>::min()) {
                 centroids = move(new_centroids);
+
+
+                // ASSES
+                cout << "k15: ";
+                for(int c = 0; c < centroids[k].size(); c++)
+                    cerr << centroids[K-1][c] << ' ';
+                cerr << endl;
+
+
                 return false;
             }
+
+
 
     return true;
 }

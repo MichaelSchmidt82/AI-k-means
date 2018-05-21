@@ -29,8 +29,11 @@ head -n -${N} tmp/temp.$$.txt > tmp/temp.$$.train.txt
 ## Only last N
 tail -n ${N} tmp/temp.$$.txt > tmp/temp.$$.test.txt
 
+echo start cmd
+echo $base_cmd tmp/temp.$$.train.txt tmp/temp.$$.test.txt $flags
 ## Run command with split data and flags appended
 ./$base_cmd tmp/temp.$$.train.txt tmp/temp.$$.test.txt $flags
+echo end cmd
 
 ## Remove temporary files
 rm tmp/temp.$$.*
