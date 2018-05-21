@@ -30,6 +30,8 @@
 *.exe
 *.out
 *.app
+kmeans
 
 # directories
-# tmp/out*
+tmp/
+.ipynb_checkpoints/

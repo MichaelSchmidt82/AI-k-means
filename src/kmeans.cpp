@@ -180,8 +180,11 @@ bool recenter (const DataMatrix & data,
         }
 
         /* Calculate new centroids by taking average of n data points */
-        for (double & d : *centroid)
-            d /= n;
+        //if (n != 0)
+            for (double & d : *centroid)
+                d /= n;
+        //else
+        //    *centroid = centroids[k];
 
         idx = 0;
         n = 0;
