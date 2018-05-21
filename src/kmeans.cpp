@@ -189,20 +189,13 @@ bool recenter (const DataMatrix & data,
 
     /* Check for convergence. */
     for (size_t k = 0; k < K; k++) {
-        // cout << "old: ";
-        // for (size_t d = 0; d < N_VALS; d++)
-        //     cout << centroids[k][d] << "   ";
-        // cout << endl;
-        // cout << "new: ";
-        // for (size_t d = 0; d < N_VALS; d++)
-        //     cout << new_centroids[k][d] << "   ";
-        // cout << endl;
-        for (size_t d = 0; d < N_VALS; d++)
+        for (size_t d = 0; d < N_VALS; d++) {
             if (abs(centroids[k][d] - new_centroids[k][d]) > numeric_limits<double>::min()) {
                 centroids = move(new_centroids);
                 return false;
             }
         }
+    }
 
     return true;
 }
