@@ -27,7 +27,7 @@ double geometric_mean(const Dataset & data,
     DistCallback dist_f,
     const size_t N_VALS);
 
-double harmonic_mean (const Dataset & data,
+double harmonic_mean(const Dataset & data,
     const Dataset & centroid,
     DistCallback dist_f,
     const size_t N_VALS);

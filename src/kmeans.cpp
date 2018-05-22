@@ -30,6 +30,8 @@ void cluster (const DataMatrix & data,
     const DataMatrix & centroids,
     Affiliation & affiliations,
     DataMatrix & distances,
+    MeanCallback mean_f,
+    DistCallback dist_f,
     const size_t K,
     const size_t N_VALS);
 
@@ -41,9 +43,8 @@ void class_check (const DataMatrix & train_data,
     const size_t N_VALS);
 
 
-
 int main (int argc, char * argv[]) {
-    assert(argc >= 6 && "5 CLA's must be provided.");
+    assert(argc >= 6 && "Not enough parameters.");
     srand(atoi(argv[1]));
 
     /* Constants */
@@ -57,6 +58,9 @@ int main (int argc, char * argv[]) {
     DataMatrix data = init(argv[4], argv[5], test, centroids, distances, K, N_VALS);
     Affiliation affiliations(data.size());
 
+    DistCallback dist_f = euclidean_dist;
+    MeanCallback mean_f = arithmetic_mean;
+
     // cluster(data, centroids, affiliations, distances, K, N_VALS);
     // for (int i = 0; i < 3; i++) {
     //     recenter(data, centroids, affiliations, K, N_VALS);
@@ -65,7 +69,7 @@ int main (int argc, char * argv[]) {
 
     /* Algorithm */
     do {
-         cluster(data, centroids, affiliations, distances, K, N_VALS);
+         cluster(data, centroids, affiliations, distances, mean_f, dist_f, K, N_VALS);
     } while(!recenter(data, centroids, affiliations, K, N_VALS));
 
     /* Validate */
@@ -79,6 +83,8 @@ void cluster (const DataMatrix & data,
     const DataMatrix & centroids,
     Affiliation & affiliations,
     DataMatrix & distances,
+    MeanCallback mean_f,
+    DistCallback dist_f,
     const size_t K,
     const size_t N_VALS) {
 
@@ -89,7 +95,7 @@ void cluster (const DataMatrix & data,
         for (size_t k = 0; k < K; k++) {
 
             const Dataset& c = centroids[k];
-            distances[d][k] = harmonic_mean(data[d], c, euclidean_dist, N_VALS);
+            distances[d][k] = mean_f(data[d], c, dist_f, N_VALS);
 
             if (distances[d][k] < min) {
                 min = distances[d][k];
