@@ -31,9 +31,16 @@
 *.out
 *.app
 kmeans
+<<<<<<< HEAD
 
 
 # directories
 .ipynb_checkpoints
 tmp/out*
 tmp/*.o
+=======
+
+# directories
+tmp/
+.ipynb_checkpoints/
+>>>>>>> dev

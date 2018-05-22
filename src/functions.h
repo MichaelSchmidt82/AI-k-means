@@ -19,17 +19,17 @@ double manhattan_dist(const Dataset & data,
 
 double arithmetic_mean(const Dataset & data,
     const Dataset & centroid,
-    DistanceCallback distance,
+    DistCallback dist_f,
     const size_t N_VALS);
 
 double geometric_mean(const Dataset & data,
     const Dataset & centroid,
-    DistanceCallback distance,
+    DistCallback dist_f,
     const size_t N_VALS);
 
-double harmonic_mean (const Dataset & data,
+double harmonic_mean(const Dataset & data,
     const Dataset & centroid,
-    DistanceCallback distance,
+    DistCallback dist_f,
     const size_t N_VALS);
 
 void normailize (DataMatrix & data,
@@ -67,19 +67,19 @@ double manhattan_dist(const Dataset & data,
 /* Mean calculators */
 double arithmetic_mean (const Dataset & data,
     const Dataset & centroid,
-    DistanceCallback distance,
+    DistCallback dist_f,
     const size_t N_VALS) {
 
     double sum = 0;
     for (size_t f = 0; f < N_VALS; f++)
-        sum += distance(data, centroid, N_VALS);
+        sum += dist_f(data, centroid, N_VALS);
 
     return sum / N_VALS;
 }
 
 double geometric_mean(const Dataset & data,
     const Dataset & centroid,
-    DistanceCallback distance,
+    DistCallback dist_f,
     const size_t N_VALS) {
 
     const double TOO_LARGE = 1.e64;
@@ -88,10 +88,10 @@ double geometric_mean(const Dataset & data,
     double product = 1.0;
 
     for (size_t f = 0; f < N_VALS;f++) {
-        product *= distance(data, centroid, N_VALS);
+        product *= dist_f(data, centroid, N_VALS);
 
         if (product > TOO_LARGE || product < TOO_SMALL) {
-            sum_log+= std::log(product);
+            sum_log += std::log(product);
             product = 1;
         }
     }
@@ -101,12 +101,12 @@ double geometric_mean(const Dataset & data,
 
 double harmonic_mean (const Dataset & data,
     const Dataset & centroid,
-    DistanceCallback distance,
+    DistCallback dist_f,
     const size_t N_VALS) {
 
     double sum = 0;
     for (size_t f = 0; f < N_VALS; f++)
-        sum += reciprocal( distance(data, centroid, N_VALS) );
+        sum += reciprocal(dist_f(data, centroid, N_VALS));
 
     return N_VALS / sum;
 }
@@ -147,7 +147,6 @@ void normailize (DataMatrix & data,
 }
 
 /* helpers */
-
 double reciprocal (double x) {
     union {
         double dbl;
