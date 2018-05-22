@@ -6,7 +6,6 @@ Description:    Unsupervised learning by K-means clustering.
 
                 This file implements the main Algorithm.
 */
-
 #include "globals.h"
 #include "functions.h"
 
@@ -23,6 +22,8 @@ bool recenter(
     const DataMatrix & data,
     DataMatrix & centroid,
     const Affiliation & affiliations,
+    MeanCallback mean_f,
+    DistCallback dist_f,
     const size_t K,
     const size_t N_VALS);
 
@@ -39,12 +40,14 @@ void class_check (const DataMatrix & train_data,
     const DataMatrix test_data,
     const Affiliation & train_affils,
     const DataMatrix & centroids,
+    MeanCallback mean_f,
+    DistCallback dist_f,
     const size_t K,
     const size_t N_VALS);
 
-
+/* int main() */
 int main (int argc, char * argv[]) {
-    assert(argc >= 6 && "Not enough parameters.");
+    assert(argc == 6 && "5 CLA's must be provided.");
     srand(atoi(argv[1]));
 
     /* Constants */
@@ -58,25 +61,18 @@ int main (int argc, char * argv[]) {
     DataMatrix data = init(argv[4], argv[5], test, centroids, distances, K, N_VALS);
     Affiliation affiliations(data.size());
 
-    DistCallback dist_f = euclidean_dist;
     MeanCallback mean_f = arithmetic_mean;
-
-    // cluster(data, centroids, affiliations, distances, K, N_VALS);
-    // for (int i = 0; i < 3; i++) {
-    //     recenter(data, centroids, affiliations, K, N_VALS);
-    //     cluster(data, centroids, affiliations, distances, K, N_VALS);
-    // }
+    DistCallback dist_f = euclidean_dist;
 
     /* Algorithm */
     do {
          cluster(data, centroids, affiliations, distances, mean_f, dist_f, K, N_VALS);
-    } while(!recenter(data, centroids, affiliations, K, N_VALS));
+    } while(!recenter(data, centroids, affiliations, mean_f, dist_f, K, N_VALS));
 
     /* Validate */
-    class_check (data, test, affiliations, centroids, K, N_VALS);
+    class_check (data, test, affiliations, centroids, mean_f, dist_f, K, N_VALS);
     return 0;
 }
-
 
 /* Functions */
 void cluster (const DataMatrix & data,
@@ -110,6 +106,8 @@ void class_check (const DataMatrix & train_data,
     const DataMatrix test_data,
     const Affiliation & train_affils,
     const DataMatrix & centroids,
+    MeanCallback mean_f,
+    DistCallback dist_f,
     const size_t K,
     const size_t N_VALS) {
 
@@ -149,7 +147,7 @@ void class_check (const DataMatrix & train_data,
         max = 0;
     }
 
-    cluster(test_data, centroids, test_affils, distances, K, N_VALS);
+    cluster(test_data, centroids, test_affils, distances, mean_f, dist_f, K, N_VALS);
 
     /* Count how many are correct */
     for (size_t t = 0; t < test_data.size(); t++)
@@ -162,6 +160,8 @@ void class_check (const DataMatrix & train_data,
 bool recenter (const DataMatrix & data,
     DataMatrix & centroids,
     const Affiliation & affiliations,
+    MeanCallback mean_f,
+    DistCallback dist_f,
     const size_t K,
     const size_t N_VALS) {
 
@@ -186,25 +186,23 @@ bool recenter (const DataMatrix & data,
         }
 
         /* Calculate new centroids by taking average of n data points */
-        //if (n != 0)
+        if (n != 0)
             for (double & d : *centroid)
                 d /= n;
-        //else
-        //    *centroid = centroids[k];
+        else
+            *centroid = centroids[k];
 
         idx = 0;
         n = 0;
     }
 
     /* Check for convergence. */
-    for (size_t k = 0; k < K; k++) {
-        for (size_t d = 0; d < N_VALS; d++) {
+    for (size_t k = 0; k < K; k++)
+        for (size_t d = 0; d < centroids[k].size(); d++)
             if (abs(centroids[k][d] - new_centroids[k][d]) > numeric_limits<double>::min()) {
                 centroids = move(new_centroids);
                 return false;
             }
-        }
-    }
 
     return true;
 }

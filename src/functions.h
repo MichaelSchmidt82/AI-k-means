@@ -91,7 +91,7 @@ double geometric_mean(const Dataset & data,
         product *= dist_f(data, centroid, N_VALS);
 
         if (product > TOO_LARGE || product < TOO_SMALL) {
-            sum_log+= std::log(product);
+            sum_log += std::log(product);
             product = 1;
         }
     }
