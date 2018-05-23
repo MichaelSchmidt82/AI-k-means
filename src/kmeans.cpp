@@ -6,6 +6,7 @@ Description:    Unsupervised learning by K-means clustering.
 
                 This file implements the main Algorithm.
 */
+
 #include "globals.h"
 #include "functions.h"
 
@@ -22,8 +23,6 @@ bool recenter(
     const DataMatrix & data,
     DataMatrix & centroid,
     const Affiliation & affiliations,
-    MeanCallback mean_f,
-    DistCallback dist_f,
     const size_t K,
     const size_t N_VALS);
 
@@ -31,8 +30,6 @@ void cluster (const DataMatrix & data,
     const DataMatrix & centroids,
     Affiliation & affiliations,
     DataMatrix & distances,
-    MeanCallback mean_f,
-    DistCallback dist_f,
     const size_t K,
     const size_t N_VALS);
 
@@ -40,8 +37,6 @@ void class_check (const DataMatrix & train_data,
     const DataMatrix test_data,
     const Affiliation & train_affils,
     const DataMatrix & centroids,
-    MeanCallback mean_f,
-    DistCallback dist_f,
     const size_t K,
     const size_t N_VALS);
 
@@ -61,16 +56,13 @@ int main (int argc, char * argv[]) {
     DataMatrix data = init(argv[4], argv[5], test, centroids, distances, K, N_VALS);
     Affiliation affiliations(data.size());
 
-    MeanCallback mean_f = arithmetic_mean;
-    DistCallback dist_f = euclidean_dist;
-
     /* Algorithm */
     do {
-         cluster(data, centroids, affiliations, distances, mean_f, dist_f, K, N_VALS);
-    } while(!recenter(data, centroids, affiliations, mean_f, dist_f, K, N_VALS));
+         cluster(data, centroids, affiliations, distances, K, N_VALS);
+    } while(!recenter(data, centroids, affiliations, K, N_VALS));
 
     /* Validate */
-    class_check (data, test, affiliations, centroids, mean_f, dist_f, K, N_VALS);
+    class_check (data, test, affiliations, centroids, K, N_VALS);
     return 0;
 }
 
@@ -79,8 +71,6 @@ void cluster (const DataMatrix & data,
     const DataMatrix & centroids,
     Affiliation & affiliations,
     DataMatrix & distances,
-    MeanCallback mean_f,
-    DistCallback dist_f,
     const size_t K,
     const size_t N_VALS) {
 
@@ -91,7 +81,7 @@ void cluster (const DataMatrix & data,
         for (size_t k = 0; k < K; k++) {
 
             const Dataset& c = centroids[k];
-            distances[d][k] = mean_f(data[d], c, dist_f, N_VALS);
+            distances[d][k] = harmonic_mean(data[d], c, euclidean_dist, N_VALS);
 
             if (distances[d][k] < min) {
                 min = distances[d][k];
@@ -106,8 +96,6 @@ void class_check (const DataMatrix & train_data,
     const DataMatrix test_data,
     const Affiliation & train_affils,
     const DataMatrix & centroids,
-    MeanCallback mean_f,
-    DistCallback dist_f,
     const size_t K,
     const size_t N_VALS) {
 
@@ -147,7 +135,7 @@ void class_check (const DataMatrix & train_data,
         max = 0;
     }
 
-    cluster(test_data, centroids, test_affils, distances, mean_f, dist_f, K, N_VALS);
+    cluster(test_data, centroids, test_affils, distances, K, N_VALS);
 
     /* Count how many are correct */
     for (size_t t = 0; t < test_data.size(); t++)
@@ -160,8 +148,6 @@ void class_check (const DataMatrix & train_data,
 bool recenter (const DataMatrix & data,
     DataMatrix & centroids,
     const Affiliation & affiliations,
-    MeanCallback mean_f,
-    DistCallback dist_f,
     const size_t K,
     const size_t N_VALS) {
 
@@ -190,7 +176,7 @@ bool recenter (const DataMatrix & data,
             for (double & d : *centroid)
                 d /= n;
         else
-            *centroid = centroids[k];
+            centroid = centroids[k];
 
         idx = 0;
         n = 0;

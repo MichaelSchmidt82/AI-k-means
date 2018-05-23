@@ -7,7 +7,8 @@ shift
 num_of_attributes=9
 data_file="datasets/cancer-data.txt"
 
-touch tmp/out$clusters
+touch tmp/out$clusers
 
 for ((seed=1;seed<=100;seed++)); do
-    cat $data_file | ./scripts/split.sh 10 kmeans $seed $clusters $num_of_attributes $@; done >> tmp/out$clusters
+    cat $data_file | ./scripts/split.sh 10 kmeans $seed $clusters $num_of_attributes $@;
+done >> tmp/out$clusters
