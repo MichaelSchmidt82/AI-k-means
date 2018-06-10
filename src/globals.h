@@ -28,8 +28,6 @@ using std::string;
 using std::stringstream;
 using std::vector;
 
-using std::setw;
-using std::setprecision;
 
 /* Typedefs */
 typedef vector<double> Dataset;

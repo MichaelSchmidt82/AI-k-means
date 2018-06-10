@@ -1,5 +1,5 @@
 #!/bin/bash
-(cd "${0%/*}" && cd ../)
+(cd "${0%/*}" && cd ..)
 
 clusters=$1
 shift
@@ -10,5 +10,5 @@ data_file="datasets/iris-data.txt"
 touch tmp/out$clusers
 
 for ((seed=1;seed<=100;seed++)); do
-    cat $data_file | ./scripts/split.sh 10 kmeans $seed $clusters $num_of_attributes $@; 
+    cat $data_file | ./scripts/split.sh 10 kmeans $seed $clusters $num_of_attributes $@;
 done >> tmp/out$clusters

@@ -11,6 +11,6 @@ for ((cluster=1; cluster<=$cluster_max; cluster++)); do
 	echo "finished clustering ($cluster)"
 done
 
-paste out{1..140} > $out
+paste tmp/out{1..140} > $out
 rm tmp/out*
 echo "finished."

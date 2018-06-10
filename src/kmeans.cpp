@@ -42,7 +42,7 @@ void class_check (const DataMatrix & train_data,
 
 /* int main() */
 int main (int argc, char * argv[]) {
-    assert(argc == 6 && "5 CLA's must be provided.");
+    assert(argc >= 6 && "atleast 5 CLA's must be provided.");
     srand(atoi(argv[1]));
 
     /* Constants */
@@ -50,6 +50,7 @@ int main (int argc, char * argv[]) {
     const size_t N_VALS = atoi(argv[3]);
 
     /* Variables */
+    // distance test with K??
     DataMatrix centroids(K);
     DataMatrix distances;
     DataMatrix test;
@@ -176,7 +177,7 @@ bool recenter (const DataMatrix & data,
             for (double & d : *centroid)
                 d /= n;
         else
-            centroid = centroids[k];
+            *centroid = centroids[k];
 
         idx = 0;
         n = 0;
@@ -273,4 +274,14 @@ DataMatrix init (char* train,
     train_file.close();
 
     return train_data;
+}
+
+void parse_options(int argc, char * argv[]) {
+    if (argc == 6)
+        return;
+
+    argc = argc - 6;
+
+
+
 }
